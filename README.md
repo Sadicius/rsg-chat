@@ -1,4 +1,3 @@
-# rsg-chat
 ## [RSG Framework](https://github.com/Rexshack-RedM) Chat Script - Redesigned by [DFA-Developments](https://dfadevelopments.tebex.io)
 
 # Preview
