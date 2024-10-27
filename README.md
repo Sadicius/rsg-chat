@@ -12,4 +12,5 @@
 
 ### Check Out Our Tebex Store
 Looking for more scripts to enhance your RedM experience? Visit our Tebex store to explore our full collection of scripts!
-🔗 [Visit Our Tebex Store](https://dfadevelopments.tebex.io)
+
+### 🔗 [Visit Our Tebex Store](https://dfadevelopments.tebex.io)
