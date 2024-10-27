@@ -1,2 +1,3 @@
 # rsg-chat
- Rsg Framework Chat Script for Redm
+## RSG Framework Chat Script - Redesigned by DFA Developments
+
