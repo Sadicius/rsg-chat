@@ -1,7 +1,7 @@
 ## [RSG Framework](https://github.com/Rexshack-RedM) Chat Script - Redesigned by [DFA-Developments](https://dfadevelopments.tebex.io)
 
 # Preview
-![Preview](https://i.ibb.co/1zcXJk2/image.png)
+![Preview](https://i.ibb.co/dtCntRJ/rsg-chat-preview.png)
 
 
 ## Original Chat - [Ip-Chat](https://github.com/Rexshack-RedM/ip-chat)
