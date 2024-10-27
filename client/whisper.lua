@@ -15,13 +15,13 @@ AddEventHandler('chat:whisper', function(id, name, message, time)
         -- Check the distance and broadcast the message if it's within the bisikDistance limit
         if id2 == id1 or GetDistanceBetweenCoords(GetEntityCoords(GetPlayerPed(id1)), GetEntityCoords(GetPlayerPed(id2)), true) < Config.bisikDistance then
             TriggerEvent('chat:addMessage', {
-                template = '<div class="chat-message ooc"><i class="fas fa-comment"></i> <b><span style="color: #fff">[WHISPER] {0}</span>&nbsp;<span style="font-size: 14px; color: #0b0d0b;">{2}</span></b><div style="margin-top: 5px; font-weight: 300;">{1}</div></div>',
+                template = '<div class="chat-message ooc"><i class="fas fa-comment"></i> <b><span style="color: #0b0d0b">[WHISPER] {0}</span>&nbsp;<span style="font-size: 14px; color: #0b0d0b;">{2}</span></b><div style="margin-top: 5px; font-weight: 300;">{1}</div></div>',
                 args = {playerName, message, time}
             })
         end
     end)
 end)
 
-RegisterNetEvent('rsg-chat:client:SendReport', function(name, src, msg)
-    TriggerServerEvent('rsg-chat:server:SendReport', name, src, msg)
+RegisterNetEvent('ip-chat:client:SendReport', function(name, src, msg)
+    TriggerServerEvent('ip-chat:server:SendReport', name, src, msg)
 end)

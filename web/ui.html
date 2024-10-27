@@ -1,18 +1,15 @@
 <!DOCTYPE html>
 <html>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <head>
+        <link href="animate.min.css" rel="stylesheet">
+        <link href="styles.css" rel="stylesheet"></link>
+        <script src="vue.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
 
-<head>
-    <link href="animate.min.css" rel="stylesheet">
-    <link href="styles.css" rel="stylesheet">
-    </link>
-    <script src="vue.js"></script>
-</head>
-
-<body>
-    <div id="app"></div>
-
-    <script type="text/x-template" id="app_template">
+        <script type="text/x-template" id="app_template">
             <div id="app">
                 <div class="chat-window" :style="this.style" :class="{ 'fadeOutUp animated': !showWindow, 'hidden': shouldHide }">
                     <div class="chat-messages" ref="messages">
@@ -28,8 +25,8 @@
                     </div>
                 </div>
                 <div class="chat-input" v-show="showInput">
-                    <span class="prefix"></span>
                     <div>
+                        <span class="prefix"><i class="fas fa-paper-plane fa-lg"></i></span>
                         <input v-model="message"
                             ref="input"
                             type="text"
@@ -47,13 +44,13 @@
             </div>
         </script>
 
-    <script type="text/x-template" id="message_template">
+        <script type="text/x-template" id="message_template">
             <div class="msg" :class="{ multiline }">
                 <span v-html="textEscaped"></span>
             </div>
         </script>
 
-    <script type="text/x-template" id="suggestions_template">
+        <script type="text/x-template" id="suggestions_template">
             <div class="suggestions-wrap" v-show="currentSuggestions.length > 0">
                 <ul class="suggestions">
                     <li class="suggestion" v-for="s in currentSuggestions">
@@ -80,30 +77,29 @@
             </div>
         </script>
 
-    <script src="suggestions.js" type="text/javascript"></script>
-    <script src="message.js" type="text/javascript"></script>
-    <script src="app.js" type="text/javascript"></script>
+        <script src="suggestions.js" type="text/javascript"></script>
+        <script src="message.js" type="text/javascript"></script>
+        <script src="app.js" type="text/javascript"></script>
 
-    <script type="text/javascript">
-        window.post = (url, data) => {
-            var request = new XMLHttpRequest();
-            request.open('POST', url, true);
-            request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-            request.send(data);
-        }
+        <script type="text/javascript">
+            window.post = (url, data) => {
+                var request = new XMLHttpRequest();
+                request.open('POST', url, true);
+                request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                request.send(data);
+            }
 
-        const instance = new Vue({
-            el: '#app',
-            render: h => h(APP),
-        });
+            const instance = new Vue({
+                el: '#app',
+                render: h => h(APP),
+            });
 
-        window.emulate = (type, detail = {}) => {
-            detail.type = type;
-            window.dispatchEvent(new CustomEvent('message', {
-                detail,
-            }));
-        };
-    </script>
-</body>
-
+            window.emulate = (type, detail = {}) => {
+                detail.type = type;
+                window.dispatchEvent(new CustomEvent('message', {
+                    detail,
+                }));
+            };
+        </script>
+    </body>
 </html>
