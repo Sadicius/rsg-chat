@@ -35,7 +35,10 @@ if Config.EnableStaffCommand then
         local time = os.date(Config.DateFormat)
         playerName = Player.PlayerData.name
         local src = source
-
+        if #args < 1 then
+            TriggerClientEvent('ox_lib:notify', source, {title = 'Staff Command', description = 'Usage: /'..Config.StaffCommand..' [message]', type = 'error', duration = 5000 })
+            return
+        end
         if RSGCore.Functions.HasPermission(src, 'admin') or IsPlayerAceAllowed(src, 'command') then
             TriggerClientEvent('chat:addMessage', -1, {
                 template = '<div class="chat-message staff"><i class="fas fa-shield-alt"></i> <b><span style="color: #1ebc62">[ANNOUNCEMENT]</span>&nbsp;<span style="font-size: 14px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 5px; font-weight: 300;">{0}</div></div>',
@@ -53,7 +56,10 @@ if Config.EnableStaffOnlyCommand then
         local time = os.date(Config.DateFormat)
         local playerName = Player.PlayerData.name
         local src = source
-
+        if #args < 1 then
+            TriggerClientEvent('ox_lib:notify', source, {title = 'Admin Chat', description = 'Usage: /'..Config.StaffOnlyCommand..' [message]', type = 'error', duration = 5000 })
+            return
+        end
         if RSGCore.Functions.HasPermission(src, 'admin') or IsPlayerAceAllowed(src, 'command') then
             local players = getPlayersWithStaffRoles()
             for k, v in ipairs(players) do
@@ -81,7 +87,10 @@ if Config.EnableAdvertisementCommand then
         local lastname = PlayerData.charinfo.lastname
         local playerName = firstname .. ' ' .. lastname
         local bankMoney = PlayerData.money.bank
-
+        if #args < 1 then
+            TriggerClientEvent('ox_lib:notify', source, {title = 'Advertisement', description = 'Usage: /'..Config.AdvertisementCommand..' [message]', type = 'error', duration = 5000 })
+            return
+        end
         if canAdvertise then
             if bankMoney >= Config.AdvertisementPrice then
                 Player.Functions.RemoveMoney('bank', Config.AdvertisementPrice)
@@ -90,8 +99,7 @@ if Config.EnableAdvertisementCommand then
                     args = { playerName, message, time }
                 })
 
-                RSGCore.Functions.Notify("Advertisement successfully made for "..Config.AdvertisementPrice..'$', success, 5000)
-
+                TriggerClientEvent('ox_lib:notify', source, {title = 'Advertisement', description = "Advertisement successfully made for "..Config.AdvertisementPrice..'$', type = 'success', duration = 5000 })
                 local time = Config.AdvertisementCooldown * 60
                 local pastTime = 0
                 canAdvertise = false
@@ -103,10 +111,10 @@ if Config.EnableAdvertisementCommand then
                 end
                 canAdvertise = true
             else
-                RSGCore.Functions.Notify("You don't have enough money to make an advertisement", 'error')
+                TriggerClientEvent('ox_lib:notify', source, {title = 'Advertisement', description = "You don't have enough money to make an advertisement", type = 'error', duration = 5000 })
             end
         else
-            RSGCore.Functions.Notify("You can only advertise once every "..Config.AdvertisementCooldown.." minutes.", 'error', 5000)
+            TriggerClientEvent('ox_lib:notify', source, {title = 'Advertisement', description = "You can only advertise once every "..Config.AdvertisementCooldown.." minutes.", type = 'error', duration = 5000 })
         end
     end)
 end
@@ -120,7 +128,10 @@ if Config.EnableValentineCommand then
         local time = os.date(Config.DateFormat)
         playerName = xPlayer.PlayerData.name
         local job = xPlayer.PlayerData.job.name
-
+        if #args < 1 then
+            TriggerClientEvent('ox_lib:notify', source, {title = 'Valentine', description = 'Usage: /'..Config.ValentineCommand..' [message]', type = 'error', duration = 5000 })
+            return
+        end
         if job == Config.ValentineJobName then
             TriggerClientEvent('chat:addMessage', -1, {
                 template = '<div class="chat-message valentine"><i class="fas fa-cog"></i> <b><span style="color: #595858">[VALENTINE] {0}</span>&nbsp;<span style="font-size: 14px; color: #fcf7f5;">{1}</div></b><div style="margin-top: 5px; font-weight: 300;"</div>',
@@ -137,7 +148,10 @@ if Config.EnableRhodesCommand then
         local message = rawCommand:sub(length + 1)
         local time = os.date(Config.DateFormat)
         local job = xPlayer.PlayerData.job.name
-
+        if #args < 1 then
+            TriggerClientEvent('ox_lib:notify', source, {title = 'Rhodes', description = 'Usage: /'..Config.RhodesCommand..' [message]', type = 'error', duration = 5000 })
+            return
+        end
         if job == Config.RhodesJobName then
             TriggerClientEvent('chat:addMessage', -1, {
                 template = '<div class="chat-message rhodes"><i class="fas fa-cog"></i> <b><span style="color: #32406e">[RHODES] {0}</span>&nbsp;<span style="font-size: 14px; color: #62a2f5;">{1}</div></b><div style="margin-top: 5px; font-weight: 300;"</div>',
@@ -151,6 +165,12 @@ RegisterCommand('report', function(source, args, rawCommand)
 	local src = source
 	local msg = table.concat(args, ' ')
 	local Player = RSGCore.Functions.GetPlayer(src)
+
+    if #args < 1 then
+        TriggerClientEvent('ox_lib:notify', source, {title = 'Report', description = 'Usage: /report [message]', type = 'error', duration = 5000 })
+        return
+    end
+
 	TriggerClientEvent('rsg-chat:client:SendReport', -1, GetPlayerName(src), src, msg)
 	TriggerEvent('rsg-log:server:CreateLog', 'report', 'Report', 'green', '**' .. GetPlayerName(src) ..' (' .. GetPlayerIdentifier(src) .. ') ** (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. src .. ') **Report:** ' .. msg, false)
 end)
@@ -176,7 +196,7 @@ RegisterCommand('reply', function(source, args, rawCommand)
     if RSGCore.Functions.HasPermission(src, 'admin') or IsPlayerAceAllowed(src, 'command') then
         -- Check if the user provided an ID and a message
         if #args < 2 then
-            player.Functions.Notify('Usage: /reply [report ID] [message]', 'error')
+            TriggerClientEvent('ox_lib:notify', source, {title = 'Report', description = 'Usage: /reply [report ID] [message]', type = 'error', duration = 5000 })
             return
         end
         
@@ -187,14 +207,14 @@ RegisterCommand('reply', function(source, args, rawCommand)
         -- Get the report from the ID
         local report = reportCooldown[reportId]
         if not report then
-            player.Functions.Notify('Invalid report ID.', 'error')
+            TriggerClientEvent('ox_lib:notify', source, {title = 'Report', description = 'Invalid report ID.', type = 'error', duration = 5000 })
             return
         end
         
         -- Get the player who made the report
         local reportedPlayer = RSGCore.Functions.GetPlayer(report.reporter)
         if not reportedPlayer then
-            player.Functions.Notify('Reported player is not online.', 'error')
+            TriggerClientEvent('ox_lib:notify', source, {title = 'Report', description = 'Reported player is not online.', type = 'error', duration = 5000 })
             return
         end
         
@@ -205,7 +225,7 @@ RegisterCommand('reply', function(source, args, rawCommand)
         })
         
         -- Notify the admin that the message was sent
-        player.Functions.Notify(string.format('Your message was sent to %s.', reportedPlayer.PlayerData.name))
+        TriggerClientEvent('ox_lib:notify', source, {title = 'Report', description = string.format('Your message was sent to %s.', reportedPlayer.PlayerData.name), type = 'inform', duration = 5000 })
         
         -- Add the reply message to the report log
         table.insert(report.log, {
@@ -219,7 +239,10 @@ end)
 RegisterCommand('gossip', function(source, args, rawCommand)
     local message = table.concat(args, ' ')
     local time = os.date(Config.DateFormat)
-
+    if #args < 1 then
+        TriggerClientEvent('ox_lib:notify', source, {title = 'Gossip', description = 'Usage: /gossip [message]', type = 'error', duration = 5000 })
+        return
+    end
     TriggerClientEvent('chat:addMessage', -1, {
         template = '<div class="chat-message gossip"><i class="fas fa-comment"></i> <b><span style="color: #ffc107">[GOSSIP]</span>&nbsp;<span style="font-size: 14px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 5px; font-weight: 300;">{0}</div></div>',
         args = { message, time }
@@ -235,6 +258,13 @@ RegisterCommand('ooc', function(source, args, rawCommand)
     local firstname = PlayerData.charinfo.firstname
     local lastname = PlayerData.charinfo.lastname
     local playerName = firstname .. ' ' .. lastname
+
+    if #args < 1 then
+        TriggerClientEvent('ox_lib:notify', source, {title = 'OOC', description = 'Usage: /ooc [message]', type = 'error', duration = 5000 })
+        return
+    end
+
+
     TriggerClientEvent('chat:addMessage', -1, {
         template = '<div class="chat-message ooc"><i class="fas fa-comment"></i> <b><span style="color: #ffc107">[OOC] {0}</span>&nbsp;<span style="font-size: 14px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 5px; font-weight: 300;">{2}</div></div>',
         args = {playerName, time, message}
@@ -249,6 +279,10 @@ if Config.EnableWhisperCommand then
         local message = rawCommand:sub(length + 1)
         local time = os.date(Config.DateFormat)
         playerName = xPlayer.PlayerData.name
+        if #args < 1 then
+            TriggerClientEvent('ox_lib:notify', source, {title = 'Whisper', description = 'Usage: /'.. Config.WhisperCommand ..' [message]', type = 'error', duration = 5000 })
+            return
+        end
         TriggerClientEvent('chat:whisper', -1, source, playerName, message, time)
     end)
 end
