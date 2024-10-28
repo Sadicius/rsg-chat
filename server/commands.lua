@@ -1,9 +1,35 @@
 local RSGCore = exports['rsg-core']:GetCoreObject()
 
 local canAdvertise = true
-
 local reportCooldown = {}
 
+-------------------
+-- send To Discord
+-------------------
+
+local function sendToDiscord(color, name, message, footer, type)
+    local embed = {{   
+        ["color"] = color,
+        ["title"] = "**".. name .."**",
+        ["description"] = message,
+        ["footer"] = {
+            ["text"] = footer
+        }
+    }}
+    if type == "chatreport" then
+        PerformHttpRequest(Config['Webhooks']['chatreport'], function(err, text, headers) end, 'POST', json.encode({username = name, embeds = embed}), { ['Content-Type'] = 'application/json' })
+    elseif type == "chatooc" then
+        PerformHttpRequest(Config['Webhooks']['chatooc'], function(err, text, headers) end, 'POST', json.encode({username = name, embeds = embed}), { ['Content-Type'] = 'application/json' })
+    elseif type == "chatme" then
+        PerformHttpRequest(Config['Webhooks']['chatme'], function(err, text, headers) end, 'POST', json.encode({username = name, embeds = embed}), { ['Content-Type'] = 'application/json' })
+    elseif type == "chatdo" then
+        PerformHttpRequest(Config['Webhooks']['chatdo'], function(err, text, headers) end, 'POST', json.encode({username = name, embeds = embed}), { ['Content-Type'] = 'application/json' })
+    elseif type == "chatrumor" then
+        PerformHttpRequest(Config['Webhooks']['chatrumor'], function(err, text, headers) end, 'POST', json.encode({username = name, embeds = embed}), { ['Content-Type'] = 'application/json' })
+    elseif type == "chatrumoric" then
+        PerformHttpRequest(Config['Webhooks']['chatrumoric'], function(err, text, headers) end, 'POST', json.encode({username = name, embeds = embed}), { ['Content-Type'] = 'application/json' })
+    end
+end
 
 if Config.AllowPlayersToClearTheirChat then
     RegisterCommand(Config.ClearChatCommand, function(source, args, rawCommand)
@@ -98,8 +124,8 @@ if Config.EnableAdvertisementCommand then
                     template = '<div class="chat-message advertisement"><i class="fas fa-ad"></i> <b><span style="color: #81db44">{0}</span>&nbsp;<span style="font-size: 14px; color: #e1e1e1;">{2}</span></b><div style="margin-top: 5px; font-weight: 300;">{1}</div></div>',
                     args = { playerName, message, time }
                 })
+                TriggerClientEvent('ox_lib:notify', source, {title = "Advertisement successfully made for "..Config.AdvertisementPrice..'$', type = 'inform', duration = 5000 })
 
-                TriggerClientEvent('ox_lib:notify', source, {title = 'Advertisement', description = "Advertisement successfully made for "..Config.AdvertisementPrice..'$', type = 'success', duration = 5000 })
                 local time = Config.AdvertisementCooldown * 60
                 local pastTime = 0
                 canAdvertise = false
@@ -111,14 +137,14 @@ if Config.EnableAdvertisementCommand then
                 end
                 canAdvertise = true
             else
-                TriggerClientEvent('ox_lib:notify', source, {title = 'Advertisement', description = "You don't have enough money to make an advertisement", type = 'error', duration = 5000 })
+                TriggerClientEvent('ox_lib:notify', source, {title = "You don\'t have enough money to make an advertisement", type = 'error', duration = 5000 })
+                
             end
         else
-            TriggerClientEvent('ox_lib:notify', source, {title = 'Advertisement', description = "You can only advertise once every "..Config.AdvertisementCooldown.." minutes.", type = 'error', duration = 5000 })
+            TriggerClientEvent('ox_lib:notify', source, {title = Config.AdvertisementCooldown.." minutes.", description = "You can only advertise once every ", type = 'error', duration = 5000 })
         end
     end)
 end
-
 
 if Config.EnableValentineCommand then
     RegisterCommand(Config.ValentineCommand, function(source, args, rawCommand)
@@ -161,19 +187,29 @@ if Config.EnableRhodesCommand then
     end)
 end
 
-RegisterCommand('report', function(source, args, rawCommand)
-	local src = source
-	local msg = table.concat(args, ' ')
-	local Player = RSGCore.Functions.GetPlayer(src)
+if Config.EnableReportCommand then
+    RegisterCommand(Config.ReportCommand, function(source, args, rawCommand)
+        local src = source
+        local msg = table.concat(args, ' ')
+        local Player = RSGCore.Functions.GetPlayer(src)
 
-    if #args < 1 then
-        TriggerClientEvent('ox_lib:notify', source, {title = 'Report', description = 'Usage: /report [message]', type = 'error', duration = 5000 })
-        return
-    end
-
-	TriggerClientEvent('rsg-chat:client:SendReport', -1, GetPlayerName(src), src, msg)
-	TriggerEvent('rsg-log:server:CreateLog', 'report', 'Report', 'green', '**' .. GetPlayerName(src) ..' (' .. GetPlayerIdentifier(src) .. ') ** (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. src .. ') **Report:** ' .. msg, false)
-end)
+        if #args < 1 then
+            TriggerClientEvent('ox_lib:notify', source, {title = 'Report', description = 'Usage: /'..Config.ReportCommand..' [message]', type = 'error', duration = 5000 })
+            return
+        end
+        TriggerClientEvent('rsg-chat:client:SendReport', -1, GetPlayerName(src), src, msg)
+        local discordMessage = string.format(
+                "Citizenid:** %s\n**Ingame ID:** %d\n**Name:** %s %s\n**Report:** %s**",
+                Player.PlayerData.citizenid,
+                Player.PlayerData.cid,
+                Player.PlayerData.charinfo.firstname,
+                Player.PlayerData.charinfo.lastname,
+                msg
+            )
+        sendToDiscord(16753920,	"chat | REPORT", discordMessage, "Chating for RSG Framework", "chatreport")
+        -- TriggerEvent('rsg-log:server:CreateLog', 'report', 'Report', 'green', '**' .. GetPlayerName(src) ..' (' .. GetPlayerIdentifier(src) .. ') ** (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. src .. ') **Report:** ' .. msg, false)
+    end)
+end
 
 RegisterNetEvent('rsg-chat:server:SendReport', function(name, targetSrc, msg)
 	local src = source
@@ -186,91 +222,251 @@ RegisterNetEvent('rsg-chat:server:SendReport', function(name, targetSrc, msg)
 	end
 end)
 
-RegisterCommand('reply', function(source, args, rawCommand)
-    local player = RSGCore.Functions.GetPlayer(source)
-    local playerName = player.PlayerData.name
-    local message = table.concat(args, ' ')
-    local time = os.date(Config.DateFormat)
-    local src = source
+if Config.EnablereplyCommand then
+    RegisterCommand(Config.replyCommand, function(source, args, rawCommand)
+        local player = RSGCore.Functions.GetPlayer(source)
+        local playerName = player.PlayerData.name
+        local message = table.concat(args, ' ')
+        local time = os.date(Config.DateFormat)
+        local src = source
 
-    if RSGCore.Functions.HasPermission(src, 'admin') or IsPlayerAceAllowed(src, 'command') then
-        -- Check if the user provided an ID and a message
-        if #args < 2 then
-            TriggerClientEvent('ox_lib:notify', source, {title = 'Report', description = 'Usage: /reply [report ID] [message]', type = 'error', duration = 5000 })
+        if RSGCore.Functions.HasPermission(src, 'admin') or IsPlayerAceAllowed(src, 'command') then
+            -- Check if the user provided an ID and a message
+            if #args < 2 then
+                TriggerClientEvent('ox_lib:notify', source, {title = 'Usage: /reply [report ID] [message]', type = 'error', duration = 5000 })
+                return
+            end
+            
+            -- Get the report ID and message
+            local reportId = tonumber(args[1])
+            local replyMessage = table.concat(args, ' ', 2)
+            
+            -- Get the report from the ID
+            local report = reportCooldown[reportId]
+            if not report then
+                TriggerClientEvent('ox_lib:notify', source, {title = 'Invalid report ID.', type = 'error', duration = 5000 })
+                return
+            end
+            
+            -- Get the player who made the report
+            local reportedPlayer = RSGCore.Functions.GetPlayer(report.reporter)
+            if not reportedPlayer then
+                TriggerClientEvent('ox_lib:notify', source, {title = 'Reported player is not online.', type = 'error', duration = 5000 })
+                return
+            end
+            
+            -- Send the reply message to the player who made the report
+            TriggerClientEvent('chat:addMessage', reportedPlayer.PlayerData.source, {
+                template = '<div class="chat-message report-reply"><i class="fas fa-comment"></i> <b><span style="color: #feca57">[REPORT REPLY] {0}</span>&nbsp;<span style="font-size: 14px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 5px; font-weight: 300;">{2}</div></div>',
+                args = { playerName, replyMessage, time }
+            })
+            
+            -- Notify the admin that the message was sent
+            TriggerClientEvent('ox_lib:notify', source, {title = string.format('Your message was sent to %s.', reportedPlayer.PlayerData.name), type = 'error', duration = 5000 })
+            -- player.Functions.Notify(string.format('Your message was sent to %s.', reportedPlayer.PlayerData.name))
+            
+            -- Add the reply message to the report log
+            table.insert(report.log, {
+                author = playerName,
+                message = replyMessage,
+                time = os.date(Config.DateFormat)
+            })
+        end
+    end)
+end
+
+if Config.EnablegossipCommand then
+    RegisterCommand(Config.gossipCommand, function(source, args, rawCommand)
+        local message = table.concat(args, ' ')
+        local time = os.date(Config.DateFormat)
+        if #args < 1 then
+            TriggerClientEvent('ox_lib:notify', source, {title = 'Gossip', description = 'Usage: /'..Config.gossipCommand..' [message]', type = 'error', duration = 5000 })
             return
         end
-        
-        -- Get the report ID and message
-        local reportId = tonumber(args[1])
-        local replyMessage = table.concat(args, ' ', 2)
-        
-        -- Get the report from the ID
-        local report = reportCooldown[reportId]
-        if not report then
-            TriggerClientEvent('ox_lib:notify', source, {title = 'Report', description = 'Invalid report ID.', type = 'error', duration = 5000 })
-            return
-        end
-        
-        -- Get the player who made the report
-        local reportedPlayer = RSGCore.Functions.GetPlayer(report.reporter)
-        if not reportedPlayer then
-            TriggerClientEvent('ox_lib:notify', source, {title = 'Report', description = 'Reported player is not online.', type = 'error', duration = 5000 })
-            return
-        end
-        
-        -- Send the reply message to the player who made the report
-        TriggerClientEvent('chat:addMessage', reportedPlayer.PlayerData.source, {
-            template = '<div class="chat-message report-reply"><i class="fas fa-comment"></i> <b><span style="color: #feca57">[REPORT REPLY] {0}</span>&nbsp;<span style="font-size: 14px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 5px; font-weight: 300;">{2}</div></div>',
-            args = { playerName, replyMessage, time }
+        TriggerClientEvent('chat:addMessage', -1, {
+            template = '<div class="chat-message gossip"><i class="fas fa-comment"></i> <b><span style="color: #ffc107">[GOSSIP]</span>&nbsp;<span style="font-size: 14px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 5px; font-weight: 300;">{0}</div></div>',
+            args = { message, time }
         })
-        
-        -- Notify the admin that the message was sent
-        TriggerClientEvent('ox_lib:notify', source, {title = 'Report', description = string.format('Your message was sent to %s.', reportedPlayer.PlayerData.name), type = 'inform', duration = 5000 })
-        
-        -- Add the reply message to the report log
-        table.insert(report.log, {
-            author = playerName,
-            message = replyMessage,
-            time = os.date(Config.DateFormat)
+    end)
+end
+
+if Config.EnableauxilioCommand then
+    local activeAuxilio = {}  -- Table to store active auxilio requests
+
+    RegisterCommand(Config.auxilioCommand, function(source, args, rawCommand)
+        local Player = RSGCore.Functions.GetPlayer(source)
+        local message = table.concat(args, ' ')
+        local time = os.date(Config.DateFormat)
+        local PlayerData = Player.PlayerData
+        local firstname = PlayerData.charinfo.firstname
+        local lastname = PlayerData.charinfo.lastname
+        local playerName = firstname .. ' ' .. lastname
+
+        local players = RSGCore.Functions.GetRSGPlayers()
+
+        for _, targetPlayer in pairs(players) do
+            -- Enviar el mensaje solo a los jugadores que tienen el trabajo de "medic"
+            if targetPlayer.PlayerData.job and targetPlayer.PlayerData.job.name == 'medic' then
+                local alertMessage = message
+                TriggerClientEvent('chat:addMessage', targetPlayer.PlayerData.source, {
+                    template = '<div class="msg auxilio"><i class="fas fa-comment"></i> <b><span style="color: #dc3545; font-size: 20px;">[AUXILIO] {0}</span>&nbsp;<span style="font-size: 18px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 2px; font-weight: 300;">',
+                    args = {time, alertMessage}
+                })
+
+                -- Store the active auxilio request
+                table.insert(activeAuxilio, {
+                    sender = source,
+                    recipient = targetPlayer.PlayerData.source,
+                    message = message
+                })
+            end
+        end
+    end)
+end
+
+if Config.EnablerespuestaCommand then
+    -- Add a response command for medics to acknowledge the auxilio request
+    RegisterCommand(Config.respuestaCommand, function(source, args, rawCommand)
+        local Player = RSGCore.Functions.GetPlayer(source)
+        local time = os.date(Config.DateFormat)
+        local responseMessage = table.concat(args, ' ')
+
+        -- Check if there are active auxilio requests
+        if #activeAuxilio > 0 then
+            local auxilioRequest = table.remove(activeAuxilio, 1)
+            local sender = RSGCore.Functions.GetPlayer(auxilioRequest.sender)
+
+            -- Send a response message to the sender
+            TriggerClientEvent('chat:addMessage', sender.PlayerData.source, {
+                template = '<div class="msg auxilio-response"><i class="fas fa-comment"></i> <b><span style="color: #28a745; font-size: 20px;">[Auxilio Response] {0}</span>&nbsp;<span style="font-size: 17px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 2px; font-weight: 300;">',
+                args = {time, responseMessage}
+            })
+        end
+    end)
+end
+
+if Config.EnabletestigoCommand then
+    RegisterCommand(Config.testigoCommand, function(source, args, rawCommand)
+        local Player = RSGCore.Functions.GetPlayer(source)
+        local message = table.concat(args, ' ')
+        local time = os.date(Config.DateFormat)
+        local PlayerData = Player.PlayerData
+        local firstname = PlayerData.charinfo.firstname
+        local lastname = PlayerData.charinfo.lastname
+        local playerName = firstname .. ' ' .. lastname
+
+        local players = RSGCore.Functions.GetRSGPlayers()
+        if #args < 1 then
+            TriggerClientEvent('ox_lib:notify', source, {title = 'TESTIGO', description = 'Usage: /'.. Config.testigoCommand ..' [message]', type = 'error', duration = 5000 })
+            return
+        end
+        for _, targetPlayer in pairs(players) do
+            -- Enviar el mensaje solo a los jugadores que tienen el trabajo de "police"
+            local leo = {'vallaw', 'rholaw', 'blklaw', 'strlaw', 'stdenlawoffice'}
+            if targetPlayer.PlayerData.job and targetPlayer.PlayerData.job.name == leo then
+                local alertMessage = message
+                TriggerClientEvent('chat:addMessage', targetPlayer.PlayerData.source, {
+                    template = '<div class="msg testigo" style="max-height: 300px; margin-bottom: 5px;"><i class="fas fa-comment"></i> <b><span style="color: #dc3545; font-size: 19px;">[TESTIGO] {0}</span>&nbsp;<span style="font-size: 16px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 2px; font-weight: 300;">',
+                    args = {time, alertMessage}
+                })
+
+                -- Verificar si el jugador está dentro de un radio de 50 unidades del testigo
+                local playerCoords = GetEntityCoords(GetPlayerPed(targetPlayer.PlayerData.source))
+                local witnessCoords = GetEntityCoords(GetPlayerPed(source))
+                local distance = #(playerCoords - witnessCoords)
+
+                if distance <= 50.0 then
+                    -- Mostrar notificación en lugar de un mensaje en el chat
+                    TriggerClientEvent('ox_lib:notify', targetPlayer.PlayerData.source, {title = 'Un testigo ha enviado un mensaje cerca de ti!', type = 'inform', duration = 5000 })
+                end
+            end
+        end
+    end)
+end
+
+if Config.EnablerumorCommand then
+    RegisterCommand(Config.rumorCommand, function(source, args, rawCommand)
+
+        local Player = RSGCore.Functions.GetPlayer(source)
+        local message = table.concat(args, ' ')
+        local time = os.date(Config.DateFormat)
+        local PlayerData = Player.PlayerData
+        local firstname = PlayerData.charinfo.firstname
+        local lastname = PlayerData.charinfo.lastname
+        local playerName = firstname .. ' ' .. 
+        if #args < 1 then
+            TriggerClientEvent('ox_lib:notify', source, {title = 'RUMOR', description = 'Usage: /'.. Config.rumorCommand ..' [message]', type = 'error', duration = 5000 })
+            return
+        end
+        TriggerClientEvent('chat:addMessage', -1, {
+            template = '<div class="msg rumor"><i class="fas fa-comment"></i> <b><span style="color: #ffc107">[RUMOR] {0}</span>&nbsp;<span style="font-size: 17px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 2px; font-weight: 300;">',
+            args = {time, message}
         })
-    end
-end)
+        local discordMessage = string.format(
+                "Citizenid:** %s\n**Ingame ID:** %d\n**Name:** %s %s\n**Message::** %s**",
+                Player.PlayerData.citizenid,
+                Player.PlayerData.cid,
+                Player.PlayerData.charinfo.firstname,
+                Player.PlayerData.charinfo.lastname,
+                message
+            )
+        sendToDiscord(16753920,	"chat | RUMOR", discordMessage, "Chating for RSG Framework", "chatrumor")
+        local discordMessage2 = string.format(
+                "Message:** %s**",
+                message
+            )
+        sendToDiscord(16753920,	"info | RUMOR", discordMessage2, "Chating for RSG Framework", "chatrumoric")
+        -- TriggerEvent('rsg-log:server:CreateLog', 'rumor', 'RUMOR', 'white', '' .. GetPlayerName(source) .. ' (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. source .. ') Message: ' .. message, false)
+    end)
+end
 
-RegisterCommand('gossip', function(source, args, rawCommand)
-    local message = table.concat(args, ' ')
-    local time = os.date(Config.DateFormat)
-    if #args < 1 then
-        TriggerClientEvent('ox_lib:notify', source, {title = 'Gossip', description = 'Usage: /gossip [message]', type = 'error', duration = 5000 })
-        return
-    end
-    TriggerClientEvent('chat:addMessage', -1, {
-        template = '<div class="chat-message gossip"><i class="fas fa-comment"></i> <b><span style="color: #ffc107">[GOSSIP]</span>&nbsp;<span style="font-size: 14px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 5px; font-weight: 300;">{0}</div></div>',
-        args = { message, time }
-    })
-end)
+if Config.EnablempCommand then
+    RegisterCommand(Config.mpCommand, function(source, args, rawCommand)
+        local playerId = tonumber(args[1])
+        local message = table.concat(args, ' ', 2)
 
-RegisterCommand('ooc', function(source, args, rawCommand)
-    
-    local Player = RSGCore.Functions.GetPlayer(source)
-    local message = table.concat(args, ' ')
-    local time = os.date(Config.DateFormat)
-    local PlayerData = Player.PlayerData
-    local firstname = PlayerData.charinfo.firstname
-    local lastname = PlayerData.charinfo.lastname
-    local playerName = firstname .. ' ' .. lastname
+        -- Validar que se proporcionó un ID de jugador y un mensaje
+        if playerId and message and message ~= '' then
+            local sender = RSGCore.Functions.GetPlayer(source)
+            local receiver = RSGCore.Functions.GetPlayer(playerId)
 
-    if #args < 1 then
-        TriggerClientEvent('ox_lib:notify', source, {title = 'OOC', description = 'Usage: /ooc [message]', type = 'error', duration = 5000 })
-        return
-    end
+            -- Verificar que el jugador receptor existe y está en línea
+            if receiver and receiver.PlayerData.source then
+                local time = os.date(Config.DateFormat)
 
+                -- Obtener el nombre completo del remitente dentro del juego
+                local senderName = sender and sender.PlayerData and sender.PlayerData.charinfo and (sender.PlayerData.charinfo.firstname .. " " .. sender.PlayerData.charinfo.lastname) or "Unknown"
 
-    TriggerClientEvent('chat:addMessage', -1, {
-        template = '<div class="chat-message ooc"><i class="fas fa-comment"></i> <b><span style="color: #ffc107">[OOC] {0}</span>&nbsp;<span style="font-size: 14px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 5px; font-weight: 300;">{2}</div></div>',
-        args = {playerName, time, message}
-    })
-    TriggerEvent('rsg-log:server:CreateLog', 'ooc', 'OOC', 'white', '**' .. GetPlayerName(source) .. '** (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. source .. ') **Message:** ' .. message, false)
-end)
+                -- Obtener el nombre completo del receptor dentro del juego
+                local receiverName = receiver and receiver.PlayerData and receiver.PlayerData.charinfo and (receiver.PlayerData.charinfo.firstname .. " " .. receiver.PlayerData.charinfo.lastname) or "Unknown"
+
+                -- Enviar el mensaje al jugador receptor
+                TriggerClientEvent('chat:addMessage', receiver.PlayerData.source, {
+                    template = '<div class="chat-message private-message"><i class="fas fa-envelope"></i> <strong>MP {0} (ID: {1})</strong>&nbsp;<span style="font-size: 20px; color: #e1e1e1;">{2}</span><div style="margin-top: 2px; font-weight: 300;">',
+                    args = {senderName, source, message}
+                })
+
+                -- Enviar confirmación al remitente
+                TriggerClientEvent('chat:addMessage', sender.PlayerData.source, {
+                    template = '<div class="chat-message private-message"><i class="fas fa-envelope"></i> <strong>MP {0} (ID: {1})</strong>&nbsp;<span style="font-size: 20px; color: #e1e1e1;">{2}</span><div style="margin-top: 2px; font-weight: 300;">',
+                    args = {receiverName, playerId, message}
+                })
+            else
+                -- Mensaje de error si el jugador receptor no está en línea
+                TriggerClientEvent('chat:addMessage', source, {
+                    template = '<div class="chat-message error-message"><i class="fas fa-exclamation-circle"></i> <strong>Error</strong>&nbsp;<span style="font-size: 20px; color: #e1e1e1;">Jugador no encontrado o no está en línea.</span><div style="margin-top: 2px; font-weight: 300;">',
+                    args = {}
+                })
+            end
+        else
+            -- Mensaje de error si no se proporciona un ID de jugador o mensaje
+            TriggerClientEvent('chat:addMessage', source, {
+                template = '<div class="chat-message error-message"><i class="fas fa-exclamation-circle"></i> <strong>Error</strong>&nbsp;<span style="font-size: 20px; color: #e1e1e1;">Uso inválido. /mp <playerId> <message></span><div style="margin-top: 2px; font-weight: 300;">',
+                args = {}
+            })
+        end
+    end)
+end
 
 if Config.EnableWhisperCommand then
     RegisterCommand(Config.WhisperCommand, function(source, args, rawCommand)
@@ -286,6 +482,119 @@ if Config.EnableWhisperCommand then
         TriggerClientEvent('chat:whisper', -1, source, playerName, message, time)
     end)
 end
+
+RegisterCommand('ooc', function(source, args, rawCommand)
+    
+    local Player = RSGCore.Functions.GetPlayer(source)
+    local message = table.concat(args, ' ')
+    local time = os.date(Config.DateFormat)
+    local PlayerData = Player.PlayerData
+    local firstname = PlayerData.charinfo.firstname
+    local lastname = PlayerData.charinfo.lastname
+    local playerName = firstname .. ' ' .. lastname
+    if #args < 1 then
+        TriggerClientEvent('ox_lib:notify', source, {title = 'OOC', description = 'Usage: /ooc [message]', type = 'error', duration = 5000 })
+        return
+    end
+
+    TriggerClientEvent('chat:addMessage', -1, {
+        template = '<div class="chat-message ooc"><i class="fas fa-comment"></i> <b><span style="color: #ffc107">[OOC] {0}</span>&nbsp;<span style="font-size: 14px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 5px; font-weight: 300;">{2}</div></div>',
+        args = {playerName, time, message}
+    })
+    
+    local discordMessage = string.format(
+            "Citizenid:** %s\n**Ingame ID:** %d\n**Name:** %s %s\n**Message::** %s**",
+            Player.PlayerData.citizenid,
+            Player.PlayerData.cid,
+            Player.PlayerData.charinfo.firstname,
+            Player.PlayerData.charinfo.lastname,
+            message
+        )
+    sendToDiscord(16753920,	"chat | OOC", discordMessage, "Chating for RSG Framework", "chatooc")
+    -- TriggerEvent('rsg-log:server:CreateLog', 'ooc', 'OOC', 'white', '**' .. GetPlayerName(source) .. '** (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. source .. ') **Message:** ' .. message, false)
+end)
+
+RegisterCommand('me', function(source, args, rawCommand)
+    local Player = RSGCore.Functions.GetPlayer(source)
+    local message = table.concat(args, ' ')
+    local time = os.date(Config.DateFormat)
+    local PlayerData = Player.PlayerData
+    local firstname = PlayerData.charinfo.firstname
+    local lastname = PlayerData.charinfo.lastname
+    local playerName = firstname .. ' ' .. lastname
+    local playerPos = GetEntityCoords(GetPlayerPed(source))
+    local radioRange = 5.0  
+    if #args < 1 then
+        TriggerClientEvent('ox_lib:notify', source, {title = 'ME', description = 'Usage: /me [message]', type = 'error', duration = 5000 })
+        return
+    end
+    -- Itera sobre todos los jugadores para enviar el mensaje solo a los cercanos
+    for _, targetPlayer in ipairs(GetPlayers()) do
+        local targetPos = GetEntityCoords(GetPlayerPed(targetPlayer))
+        local distance = #(playerPos - targetPos)
+
+        if distance <= radioRange then
+            TriggerClientEvent('chat:addMessage', targetPlayer, {
+                template = '<div class="msg me"><i class="fas fa-comment"></i> <b><span style="color: #9c70de; font-size: 19px;">[ME] {0}</span>&nbsp;<span style="font-size: 17px; color: #9c70de;">{1}</span></b><div style="margin-top: 2px; font-weight: 300;">',
+                args = {playerName, message}
+            })
+        end
+    end
+
+    -- Registra el mensaje en el servidor de registro
+    local discordMessage = string.format(
+            "Citizenid:** %s\n**Ingame ID:** %d\n**Name:** %s %s\n**Message::** %s**",
+            Player.PlayerData.citizenid,
+            Player.PlayerData.cid,
+            Player.PlayerData.charinfo.firstname,
+            Player.PlayerData.charinfo.lastname,
+            message
+        )
+    sendToDiscord(16753920,	"chat | ME", discordMessage, "Chating for RSG Framework", "chatme")
+    -- TriggerEvent('rsg-log:server:CreateLog', 'me', 'me', 'white', '' .. GetPlayerName(source) .. ' (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. source .. ') Message: ' .. message, false)
+end)
+
+RegisterCommand('do', function(source, args, rawCommand)
+
+    local Player = RSGCore.Functions.GetPlayer(source)
+    local message = table.concat(args, ' ')
+    local time = os.date(Config.DateFormat)
+    local PlayerData = Player.PlayerData
+    local firstname = PlayerData.charinfo.firstname
+    local lastname = PlayerData.charinfo.lastname
+    local playerName = firstname .. ' ' .. lastname
+    local playerPos = GetEntityCoords(GetPlayerPed(source))
+    local radioRange = 5.0  
+    if #args < 1 then
+        TriggerClientEvent('ox_lib:notify', source, {title = 'DO', description = 'Usage: /do [message]', type = 'error', duration = 5000 })
+        return
+    end
+    -- Itera sobre todos los jugadores para enviar el mensaje solo a los cercanos
+    for _, targetPlayer in ipairs(GetPlayers()) do
+        local targetPos = GetEntityCoords(GetPlayerPed(targetPlayer))
+        local distance = #(playerPos - targetPos)
+
+        if distance <= radioRange then
+            TriggerClientEvent('chat:addMessage', targetPlayer, {
+                template = '<div class="msg do"><i class="fas fa-comment"></i> <b><span style="color: #ffc107; font-size: 19px;">[DO] {0}</span>&nbsp;<span style="color: #e3a71b; font-size: 17px;">{1}</span></b><div style="margin-top: 2px; font-weight: 300;">',
+                args = {playerName, message}
+            })
+        end
+    end
+
+    -- Registra el mensaje en el servidor de registro
+    
+    local discordMessage = string.format(
+            "Citizenid:** %s\n**Ingame ID:** %d\n**Name:** %s %s\n**Message::** %s**",
+            Player.PlayerData.citizenid,
+            Player.PlayerData.cid,
+            Player.PlayerData.charinfo.firstname,
+            Player.PlayerData.charinfo.lastname,
+            msg
+        )
+    sendToDiscord(16753920,	"chat | DO", discordMessage, "Chating for RSG Framework", "chatme")
+    -- TriggerEvent('rsg-log:server:CreateLog', 'do', 'do', 'white', '' .. GetPlayerName(source) .. ' (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. source .. ') Message: ' .. message, false)
+end)
 
 --restart announcement
 
@@ -315,7 +624,6 @@ AddEventHandler('txAdmin:events:scheduledRestart', function(data)
         args = { 'This server is scheduled to restart in ' .. times[data.secondsRemaining], time }
     })
 end)
-
 
 function getPlayersWithStaffRoles()
     local players = {}
