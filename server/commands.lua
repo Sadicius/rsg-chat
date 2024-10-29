@@ -393,32 +393,38 @@ if Config.EnablerumorCommand then
         local PlayerData = Player.PlayerData
         local firstname = PlayerData.charinfo.firstname
         local lastname = PlayerData.charinfo.lastname
-        local playerName = firstname .. ' ' .. 
+        local playerName = firstname .. ' ' .. lastname
+        
         if #args < 1 then
-            TriggerClientEvent('ox_lib:notify', source, {title = 'RUMOR', description = 'Usage: /'.. Config.rumorCommand ..' [message]', type = 'error', duration = 5000 })
+            TriggerClientEvent('ox_lib:notify', source, {title = 'RUMOR', description = 'Usage: /' .. Config.rumorCommand .. ' [message]', type = 'error', duration = 5000 })
             return
         end
+
         TriggerClientEvent('chat:addMessage', -1, {
             template = '<div class="msg rumor"><i class="fas fa-comment"></i> <b><span style="color: #ffc107">[RUMOR] {0}</span>&nbsp;<span style="font-size: 17px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 2px; font-weight: 300;">',
             args = {time, message}
         })
+
         local discordMessage = string.format(
-                "Citizenid:** %s\n**Ingame ID:** %d\n**Name:** %s %s\n**Message::** %s**",
-                Player.PlayerData.citizenid,
-                Player.PlayerData.cid,
-                Player.PlayerData.charinfo.firstname,
-                Player.PlayerData.charinfo.lastname,
-                message
-            )
-        sendToDiscord(16753920,	"chat | RUMOR", discordMessage, "Chating for RSG Framework", "chatrumor")
+            "Citizenid:** %s\n**Ingame ID:** %d\n**Name:** %s %s\n**Message::** %s**",
+            Player.PlayerData.citizenid,
+            Player.PlayerData.cid,
+            firstname,
+            lastname,
+            message
+        )
+        sendToDiscord(16753920, "chat | RUMOR", discordMessage, "Chating for RSG Framework", "chatrumor")
+
         local discordMessage2 = string.format(
-                "Message:** %s**",
-                message
-            )
-        sendToDiscord(16753920,	"info | RUMOR", discordMessage2, "Chating for RSG Framework", "chatrumoric")
+            "Message:** %s**",
+            message
+        )
+        sendToDiscord(16753920, "info | RUMOR", discordMessage2, "Chating for RSG Framework", "chatrumoric")
+        
         -- TriggerEvent('rsg-log:server:CreateLog', 'rumor', 'RUMOR', 'white', '' .. GetPlayerName(source) .. ' (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. source .. ') Message: ' .. message, false)
     end)
 end
+
 
 if Config.EnablempCommand then
     RegisterCommand(Config.mpCommand, function(source, args, rawCommand)
