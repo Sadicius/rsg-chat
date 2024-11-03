@@ -34,7 +34,7 @@ end
 if Config.AllowPlayersToClearTheirChat then
     RegisterCommand(Config.ClearChatCommand, function(source, args, rawCommand)
         TriggerClientEvent('chat:client:ClearChat', source)
-    end)
+    end, false)
 end
 
 if Config.AllowStaffsToClearEveryonesChat then
@@ -50,7 +50,7 @@ if Config.AllowStaffsToClearEveryonesChat then
                 args = { time }
             })
         end
-    end)
+    end, false)
 end
 
 if Config.EnableStaffCommand then
@@ -71,7 +71,7 @@ if Config.EnableStaffCommand then
                 args = { message, time }
             })
         end
-    end)
+    end, false)
 end
 
 if Config.EnableStaffOnlyCommand then
@@ -99,7 +99,7 @@ if Config.EnableStaffOnlyCommand then
                 args = { playerName, message, time }
             })
         end
-    end)
+    end, false)
 end
 
 if Config.EnableAdvertisementCommand then
@@ -143,7 +143,7 @@ if Config.EnableAdvertisementCommand then
         else
             TriggerClientEvent('ox_lib:notify', source, {title = Config.AdvertisementCooldown.." minutes.", description = "You can only advertise once every ", type = 'error', duration = 5000 })
         end
-    end)
+    end, false)
 end
 
 if Config.EnableValentineCommand then
@@ -164,7 +164,7 @@ if Config.EnableValentineCommand then
                 args = { message, time }
             })
         end
-    end)
+    end, false)
 end
 
 if Config.EnableRhodesCommand then
@@ -184,7 +184,7 @@ if Config.EnableRhodesCommand then
                 args = { message, time }
             })
         end
-    end)
+    end, false)
 end
 
 if Config.EnableReportCommand then
@@ -208,7 +208,7 @@ if Config.EnableReportCommand then
             )
         sendToDiscord(16753920,	"chat | REPORT", discordMessage, "Chating for RSG Framework", "chatreport")
         -- TriggerEvent('rsg-log:server:CreateLog', 'report', 'Report', 'green', '**' .. GetPlayerName(src) ..' (' .. GetPlayerIdentifier(src) .. ') ** (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. src .. ') **Report:** ' .. msg, false)
-    end)
+    end, false)
 end
 
 RegisterNetEvent('rsg-chat:server:SendReport', function(name, targetSrc, msg)
@@ -272,7 +272,7 @@ if Config.EnablereplyCommand then
                 time = os.date(Config.DateFormat)
             })
         end
-    end)
+    end, false)
 end
 
 if Config.EnablegossipCommand then
@@ -287,7 +287,7 @@ if Config.EnablegossipCommand then
             template = '<div class="chat-message gossip"><i class="fas fa-comment"></i> <b><span style="color: #ffc107">[GOSSIP]</span>&nbsp;<span style="font-size: 14px; color: #e1e1e1;">{1}</span></b><div style="margin-top: 5px; font-weight: 300;">{0}</div></div>',
             args = { message, time }
         })
-    end)
+    end, false)
 end
 
 if Config.EnableauxilioCommand then
@@ -321,7 +321,7 @@ if Config.EnableauxilioCommand then
                 })
             end
         end
-    end)
+    end, false)
 end
 
 if Config.EnablerespuestaCommand then
@@ -342,7 +342,7 @@ if Config.EnablerespuestaCommand then
                 args = {time, responseMessage}
             })
         end
-    end)
+    end, false)
 end
 
 if Config.EnabletestigoCommand then
@@ -381,7 +381,7 @@ if Config.EnabletestigoCommand then
                 end
             end
         end
-    end)
+    end, false)
 end
 
 if Config.EnablerumorCommand then
@@ -422,7 +422,7 @@ if Config.EnablerumorCommand then
         sendToDiscord(16753920, "info | RUMOR", discordMessage2, "Chating for RSG Framework", "chatrumoric")
         
         -- TriggerEvent('rsg-log:server:CreateLog', 'rumor', 'RUMOR', 'white', '' .. GetPlayerName(source) .. ' (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. source .. ') Message: ' .. message, false)
-    end)
+    end, false)
 end
 
 
@@ -471,7 +471,7 @@ if Config.EnablempCommand then
                 args = {}
             })
         end
-    end)
+    end, false)
 end
 
 if Config.EnableWhisperCommand then
@@ -518,7 +518,7 @@ RegisterCommand('ooc', function(source, args, rawCommand)
         )
     sendToDiscord(16753920,	"chat | OOC", discordMessage, "Chating for RSG Framework", "chatooc")
     -- TriggerEvent('rsg-log:server:CreateLog', 'ooc', 'OOC', 'white', '**' .. GetPlayerName(source) .. '** (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. source .. ') **Message:** ' .. message, false)
-end)
+end, false)
 
 RegisterCommand('me', function(source, args, rawCommand)
     local Player = RSGCore.Functions.GetPlayer(source)
@@ -558,7 +558,7 @@ RegisterCommand('me', function(source, args, rawCommand)
         )
     sendToDiscord(16753920,	"chat | ME", discordMessage, "Chating for RSG Framework", "chatme")
     -- TriggerEvent('rsg-log:server:CreateLog', 'me', 'me', 'white', '' .. GetPlayerName(source) .. ' (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. source .. ') Message: ' .. message, false)
-end)
+end, false)
 
 RegisterCommand('do', function(source, args, rawCommand)
 
@@ -600,7 +600,7 @@ RegisterCommand('do', function(source, args, rawCommand)
         )
     sendToDiscord(16753920,	"chat | DO", discordMessage, "Chating for RSG Framework", "chatme")
     -- TriggerEvent('rsg-log:server:CreateLog', 'do', 'do', 'white', '' .. GetPlayerName(source) .. ' (CitizenID: ' .. Player.PlayerData.citizenid .. ' | ID: ' .. source .. ') Message: ' .. message, false)
-end)
+end, false)
 
 --restart announcement
 
