@@ -4,9 +4,11 @@
 ![Preview](https://i.ibb.co/dtCntRJ/rsg-chat-preview.png)
 
 
+
 ## Original Chat - [Ip-Chat](https://github.com/Rexshack-RedM/ip-chat)
 
 
+[https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png](https://www.buymeacoffee.com/rehanniz)
 
 
 
@@ -16,4 +18,3 @@ Looking for more scripts to enhance your RedM experience? Visit our Tebex store 
 ### 🔗 [Visit Our Tebex Store](https://dfadevelopments.tebex.io)
 
 
-<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="rehanniz" data-color="#FFDD00" data-emoji="🍕"  data-font="Cookie" data-text="Buy me a pizza" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
