@@ -8,7 +8,7 @@
 ## Original Chat - [Ip-Chat](https://github.com/Rexshack-RedM/ip-chat)
 
 
-[https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png](https://www.buymeacoffee.com/rehanniz)
+![https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png](https://www.buymeacoffee.com/rehanniz)
 
 
 
