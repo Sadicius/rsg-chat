@@ -18,5 +18,3 @@ Looking for more scripts to enhance your RedM experience? Visit our Tebex store 
 
 ### 🔗 [Visit Our Tebex Store](https://dfadevelopments.tebex.io)
 
-
-[![Buy me a coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/rehanniz)
