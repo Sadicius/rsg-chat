@@ -22,6 +22,7 @@ client_scripts {
 server_scripts {
     'server/server.lua',
     'server/commands.lua',
+    'server/versionchecker.lua',
 }
 
 dependency 'rsg-core'
